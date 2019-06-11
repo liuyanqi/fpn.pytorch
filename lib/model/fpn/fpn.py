@@ -128,7 +128,7 @@ class _FPN(nn.Module):
             for i, l in enumerate(range(2, 6)):
                 if (roi_level == l).sum() == 0:
                     continue
-                idx_l = (roi_level == l).nonzero().squeeze()
+                idx_l = (roi_level == l).nonzero().view(-1)
                 box_to_levels.append(idx_l)
                 scale = feat_maps[i].size(2) / im_info[0][0]
                 feat = self.RCNN_roi_align(feat_maps[i], rois[idx_l], scale)
@@ -165,14 +165,14 @@ class _FPN(nn.Module):
 
         # feed image data to base model to obtain base feature map
         # Bottom-up
-        c1 = self.RCNN_layer0(im_data)
-        c2 = self.RCNN_layer1(c1)
-        c3 = self.RCNN_layer2(c2)
-        c4 = self.RCNN_layer3(c3)
-        c5 = self.RCNN_layer4(c4)
+        c1 = self.RCNN_layer0(im_data) # c1: w*h*64 # c1:w*h*64
+        c2 = self.RCNN_layer1(c1) # c2: w*h*256 # c1: w*h*128
+        c3 = self.RCNN_layer2(c2) # c3: w*h*512 # c1: w*h*256
+        c4 = self.RCNN_layer3(c3) # c4: w*h*1024 #c1: w*h*512
+        c5 = self.RCNN_layer4(c4) #c5: w*h*2048 #c1: w*h*512
         # Top-down
-        p5 = self.RCNN_toplayer(c5)
-        p4 = self._upsample_add(p5, self.RCNN_latlayer1(c4))
+        p5 = self.RCNN_toplayer(c5) # w*h*256
+        p4 = self._upsample_add(p5, self.RCNN_latlayer1(c4)) # 1024->256+256
         p4 = self.RCNN_smooth1(p4)
         p3 = self._upsample_add(p4, self.RCNN_latlayer2(c3))
         p3 = self.RCNN_smooth2(p3)

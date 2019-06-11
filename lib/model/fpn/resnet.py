@@ -228,8 +228,9 @@ class resnet(_FPN):
     resnet = resnet101()
 
     if self.pretrained == True:
-      print("Loading pretrained weights from %s" %(self.model_path))
+      print("Loading pretrained weights")
       state_dict = torch.load(self.model_path)
+      # state_dict = model_zoo.load_url(model_urls['resnet101'])
       resnet.load_state_dict({k:v for k,v in state_dict.items() if k in resnet.state_dict()})
 
     self.RCNN_layer0 = nn.Sequential(resnet.conv1, resnet.bn1, resnet.relu, resnet.maxpool)

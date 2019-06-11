@@ -15,8 +15,19 @@ from datasets.pascal_voc import pascal_voc
 from datasets.coco import coco
 from datasets.imagenet import imagenet
 from datasets.vg import vg
+from datasets.progress import progress
+from datasets.ycb_voc import ycb_voc
 
 import numpy as np
+#Set up ycb
+for split in ['train', 'test']:
+    name = 'ycb_voc_{}'.format(split)
+    __sets[name] = (lambda split=split: ycb_voc(split))
+
+#Set up progress
+for split in ['train', 'test']:
+    name = 'progress_{}'.format(split)
+    __sets[name] = (lambda split=split: progress(split))
 
 # Set up voc_<year>_<split>
 for year in ['2007', '2012']:
