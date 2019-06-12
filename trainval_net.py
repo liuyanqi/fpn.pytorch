@@ -34,7 +34,7 @@ from model.utils.net_utils import weights_normal_init, save_net, load_net, \
       adjust_learning_rate, save_checkpoint, clip_gradient
 
 from model.fpn.resnet import resnet
-# from model.fpn.vgg16 import vgg16
+from model.fpn.vgg import vgg16
 import pdb
 
 def parse_args():
@@ -238,6 +238,7 @@ if __name__ == '__main__':
   dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size,
                             sampler=sampler_batch, num_workers=args.num_workers)
 
+
   # initilize the tensor holder here.
   im_data = torch.FloatTensor(1)
   im_info = torch.FloatTensor(1)
@@ -268,7 +269,7 @@ if __name__ == '__main__':
   elif args.net == 'res152':
     FPN = resnet(imdb.classes, 152, pretrained=True, class_agnostic=args.class_agnostic)
   elif args.net == 'vgg16':
-    FPN = vgg16(imdb.calsses, pretrained=True, class_agnostic=args.class_agnostic)
+    FPN = vgg16(imdb.classes, pretrained=True, class_agnostic=args.class_agnostic)
   else:
     print("network is not defined")
     pdb.set_trace()

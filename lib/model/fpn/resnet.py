@@ -324,6 +324,9 @@ class resnet(_FPN):
       self.RCNN_layer4.apply(set_bn_eval)
 
   def _head_to_tail(self, pool5):
+    # print("pool", pool5.size())
     block5 = self.RCNN_top(pool5)
+    # print(block5.size())
     fc7 = block5.mean(3).mean(2)
+    # print(fc7.size())
     return fc7

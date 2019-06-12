@@ -165,22 +165,35 @@ class _FPN(nn.Module):
 
         # feed image data to base model to obtain base feature map
         # Bottom-up
+        # print(im_data.size())
         c1 = self.RCNN_layer0(im_data) # c1: w*h*64 # c1:w*h*64
+        # print('c1', c1.size())
         c2 = self.RCNN_layer1(c1) # c2: w*h*256 # c1: w*h*128
+        # print('c2', c2.size())
         c3 = self.RCNN_layer2(c2) # c3: w*h*512 # c1: w*h*256
+        # print('c3', c3.size())
         c4 = self.RCNN_layer3(c3) # c4: w*h*1024 #c1: w*h*512
+        # print('c4', c4.size())
         c5 = self.RCNN_layer4(c4) #c5: w*h*2048 #c1: w*h*512
+        # print('c5', c5.size())
         # Top-down
         p5 = self.RCNN_toplayer(c5) # w*h*256
+        # print('p5', p5.size())
         p4 = self._upsample_add(p5, self.RCNN_latlayer1(c4)) # 1024->256+256
+        # print('p4', p4.size())
         p4 = self.RCNN_smooth1(p4)
         p3 = self._upsample_add(p4, self.RCNN_latlayer2(c3))
+        # print('p3', p3.size())
         p3 = self.RCNN_smooth2(p3)
         p2 = self._upsample_add(p3, self.RCNN_latlayer3(c2))
+        # print('p2', p2.size())
         p2 = self.RCNN_smooth3(p2)
 
         p6 = self.maxpool2d(p5)
+        # print('p6',p6.size())
 
+        # rpn_feature_maps = [p2, p3, p4, p5, p6]
+        # mrcnn_feature_maps = [p2, p3, p4, p5]
         rpn_feature_maps = [p2, p3, p4, p5, p6]
         mrcnn_feature_maps = [p2, p3, p4, p5]
 
