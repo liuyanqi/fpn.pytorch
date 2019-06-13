@@ -307,7 +307,7 @@ __C.FPN_FEAT_STRIDES = [4, 8, 16, 32, 64]
 # Anchor stride for RPN_FPN
 __C.FPN_ANCHOR_STRIDE = 1
 
-__C.CUDA = False
+__C.CUDA = True
 
 __C.CROP_RESIZE_WITH_MAX_POOL = True
 

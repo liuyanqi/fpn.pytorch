@@ -14,7 +14,7 @@ import sys
 import numpy as np
 import argparse
 import pprint
-import pdb
+# import pdb
 import time
 import cv2
 import cPickle
@@ -33,7 +33,7 @@ from model.utils.net_utils import vis_detections
 
 from model.fpn.resnet import resnet
 
-import pdb
+# import pdb
 
 def parse_args():
   """
@@ -53,7 +53,7 @@ def parse_args():
                       help='set config keys', default=None,
                       nargs=argparse.REMAINDER)
   parser.add_argument('--load_dir', dest='load_dir',
-                      help='directory to load models', default="/srv/share/jyang375/models",
+                      help='directory to load models', default="ouput",
                       nargs=argparse.REMAINDER)
   parser.add_argument('--cuda', dest='cuda',
                       help='whether use CUDA',
@@ -119,7 +119,11 @@ if __name__ == '__main__':
       args.imdb_name = "vg_150-50-50_minitrain"
       args.imdbval_name = "vg_150-50-50_minival"
       args.set_cfgs = ['ANCHOR_SCALES', '[4, 8, 16, 32]', 'ANCHOR_RATIOS', '[0.5,1,2]']
-
+  elif args.dataset == "ycb_voc":
+    args.imdb_name = "ycb_voc_train"
+    args.imdbval_name = "ycb_voc_test"
+    args.set_cfgs = ["ANCHOR_SCALES", '[8, 16, 32]', 'ANCHOR_RATIOS', '[0.5, 1, 2]', 'MAX_NUM_GT_BOXES', '20']
+  
   args.cfg_file = "cfgs/{}.yml".format(args.net)
 
   if args.cfg_file is not None:
@@ -251,10 +255,10 @@ if __name__ == '__main__':
           pred_boxes = clip_boxes(pred_boxes, im_info.data, 1)
       else:
           # Simply repeat the boxes, once for each class
-          pred_boxes = boxes
+          _ = torch.from_numpy(np.tile(boxes, (1, scores.shape[1])))
+          pred_boxes = _.cuda() if args.cuda > 0 else _
 
-      pred_boxes /= data[1][0][2]
-
+      pred_boxes /= data[1][0][2].item()
       scores = scores.squeeze()
       pred_boxes = pred_boxes.squeeze()
       det_toc = time.time()
@@ -273,8 +277,8 @@ if __name__ == '__main__':
               cls_boxes = pred_boxes[inds, :]
             else:
               cls_boxes = pred_boxes[inds][:, j * 4:(j + 1) * 4]
-
-            cls_dets = torch.cat((cls_boxes, cls_scores), 1)
+            # print("bbox", cls_boxes.size(), "scores", cls_scores.size())
+            cls_dets = torch.cat((cls_boxes, cls_scores.unsqueeze(1)), 1)
             cls_dets = cls_dets[order]
             keep = nms(cls_dets, cfg.TEST.NMS)
             cls_dets = cls_dets[keep.view(-1).long()]
@@ -303,7 +307,8 @@ if __name__ == '__main__':
 
       if vis:
           cv2.imwrite('images/result%d.png' % (i), im2show)
-          pdb.set_trace()
+          print("saved image")
+          # pdb.set_trace()
           #cv2.imshow('test', im2show)
           #cv2.waitKey(0)
 

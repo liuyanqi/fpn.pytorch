@@ -3,3 +3,7 @@
 *.a
 data/
 logs/
+images/
+ouput/
+output/
+
